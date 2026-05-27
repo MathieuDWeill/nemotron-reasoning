@@ -4,10 +4,6 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-import torch
-from peft import LoraConfig, TaskType, get_peft_model
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from trl import SFTConfig, SFTTrainer
 
 from nemotron_reasoning.data import load_train_csv, make_hf_dataset
 from nemotron_reasoning.utils import ensure_dir, load_yaml, patch_nemotron_triton, seed_everything
@@ -18,6 +14,26 @@ def resolve_model_path(cfg: dict) -> str:
         import kagglehub
         return kagglehub.model_download(cfg['model_handle'])
     return cfg['model_path']
+
+
+def _import_training_deps():
+    import torch
+    from datasets import Dataset
+    from peft import LoraConfig, TaskType, get_peft_model
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from trl import SFTConfig, SFTTrainer
+
+    return {
+        "torch": torch,
+        "Dataset": Dataset,
+        "LoraConfig": LoraConfig,
+        "TaskType": TaskType,
+        "get_peft_model": get_peft_model,
+        "AutoModelForCausalLM": AutoModelForCausalLM,
+        "AutoTokenizer": AutoTokenizer,
+        "SFTConfig": SFTConfig,
+        "SFTTrainer": SFTTrainer,
+    }
 
 
 def main():

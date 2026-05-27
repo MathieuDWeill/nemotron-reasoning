@@ -73,3 +73,38 @@ def load_test_csv(path: str | Path) -> pd.DataFrame:
     df = df.copy()
     df["family"] = df["prompt"].map(classify_family)
     return df
+
+
+def make_hf_dataset(df, prompt_builder=None):
+    """Build a Hugging Face Dataset for SFT.
+
+    Keeps the datasets import lazy so local CLI/help checks do not require
+    the full Kaggle training stack.
+    """
+    from datasets import Dataset
+
+    records = []
+    for _, row in df.iterrows():
+        prompt = row["prompt"]
+        answer = str(row["answer"])
+
+        if prompt_builder is not None:
+            text = prompt_builder(prompt, answer)
+        else:
+            text = (
+                f"{prompt}\n\n"
+                "We need solve the puzzle and provide the final answer in LaTeX boxed format.\n"
+                f"Final answer: \\boxed{{{answer}}}"
+            )
+
+        records.append(
+            {
+                "id": row.get("id"),
+                "prompt": prompt,
+                "answer": answer,
+                "family": row.get("family", "unknown"),
+                "text": text,
+            }
+        )
+
+    return Dataset.from_list(records)
