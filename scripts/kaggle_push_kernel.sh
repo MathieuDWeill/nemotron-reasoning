@@ -2,7 +2,7 @@
 set -euo pipefail
 
 KERNEL_DIR=".kaggle_kernel"
-KERNEL_SLUG="nemotron-reasoning-run"
+KERNEL_SLUG="nemotron-reasoning-run-$(date +%Y%m%d-%H%M%S)"
 COMP="nvidia-nemotron-model-reasoning-challenge"
 
 rm -rf "${KERNEL_DIR}"
