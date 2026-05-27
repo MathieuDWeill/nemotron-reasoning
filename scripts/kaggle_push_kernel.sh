@@ -20,7 +20,10 @@ cat > "${KERNEL_DIR}/kernel-metadata.json" <<EOF
   "enable_internet": true,
   "dataset_sources": [],
   "competition_sources": ["${COMP}"],
-  "kernel_sources": []
+  "kernel_sources": [],
+  "model_sources": [
+    "metric/nemotron-3-nano-30b-a3b-bf16/Transformers/default/1"
+  ]
 }
 EOF
 
@@ -40,9 +43,9 @@ cd nemotron-reasoning
 bash scripts/kaggle_setup.sh
 
 echo "== model input tree =="
-find /kaggle/input/models -maxdepth 8 -type f | sort | sed -n '1,300p'
+find /kaggle/input -maxdepth 10 -type f | sort | sed -n '1,400p'
 echo "== config candidates =="
-find /kaggle/input/models -type f -name config.json -print
+find /kaggle/input -type f -name config.json -print
 
 python scripts/kaggle_train.py --config configs/sft_default.yaml
 
