@@ -18,6 +18,10 @@ echo "TEST_CSV=${TEST_CSV:-<not found>}"
 WORK_DATA="/kaggle/working/data/processed"
 
 echo
+echo "== install dependencies =="
+pip install -r requirements.txt
+
+echo
 echo "== install repo =="
 pip install -e .
 
