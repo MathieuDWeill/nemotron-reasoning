@@ -1,6 +1,7 @@
+model_path: /kaggle/input/models/metric/nemotron-3-nano-30b-a3b-bf16/transformers
 model_source: kagglehub
-model_handle: metric/nemotron-3-nano-30b-a3b-bf16/transformers/default
-train_csv: /kaggle/input/nvidia-nemotron-3-reasoning-challenge/train.csv
+# model_handle: metric/nemotron-3-nano-30b-a3b-bf16/transformers/default
+train_csv: /kaggle/input/competitions/nvidia-nemotron-model-reasoning-challenge/train.csv
 output_dir: /kaggle/working/outputs/adapters/nemotron_lora
 submission_zip: /kaggle/working/outputs/submissions/submission.zip
 
