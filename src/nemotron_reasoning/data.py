@@ -1,50 +1,75 @@
 from __future__ import annotations
 
-import re
-from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
-from .prompts import build_training_text
 
 
-@dataclass(frozen=True)
-class FamilyRule:
-    name: str
-    pattern: str
+REQUIRED_TRAIN_COLUMNS = {"id", "prompt", "answer"}
 
 
-FAMILY_RULES = [
-    FamilyRule("bit", r"8-bit binary|bit manipulation|XOR|AND|OR|NOT|rotation|shift"),
-    FamilyRule("roman_or_numeral", r"numeral system|Roman|Wonderland numeral"),
-    FamilyRule("text_cipher", r"secret encryption|encrypted text|cipher|plaintext|text"),
-    FamilyRule("numeric_or_algebra", r"unit conversion|measurement|equation|algebra|number|numeric"),
-    FamilyRule("symbolic", r"symbol|operators|transformation rules.*equations"),
-]
+def classify_family(prompt: str) -> str:
+    """Heuristic prompt family classifier for local validation splits."""
+    p = str(prompt).lower()
 
+    if "secret bit manipulation rule" in p or "8-bit binary" in p:
+        return "bit"
 
-def classify_prompt(prompt: str) -> str:
-    prompt = str(prompt)
-    for rule in FAMILY_RULES:
-        if re.search(rule.pattern, prompt, flags=re.IGNORECASE):
-            return rule.name
+    if (
+        "numeral system" in p
+        or "roman numeral" in p
+        or "wonderland numeral" in p
+        or "numerals" in p
+    ):
+        return "numeral"
+
+    if (
+        "secret encryption rules are used on text" in p
+        or "encrypted text" in p
+        or "encryption rules" in p
+        or "cipher" in p
+    ):
+        return "text_cipher"
+
+    if (
+        "unit conversion" in p
+        or "measurement" in p
+        or "convert" in p
+        or "units" in p
+    ):
+        return "numeric"
+
+    if (
+        "transformation rules is applied to equations" in p
+        or "transformation rules are applied to equations" in p
+        or "equation" in p
+    ):
+        return "symbolic"
+
+    if "input -> output" in p and any(tok in p for tok in ["+", "-", "*", "/", "="]):
+        return "numeric_or_symbolic"
+
     return "other"
 
 
 def load_train_csv(path: str | Path) -> pd.DataFrame:
+    path = Path(path)
     df = pd.read_csv(path)
-    required = {"id", "prompt", "answer"}
-    missing = required - set(df.columns)
+    missing = REQUIRED_TRAIN_COLUMNS - set(df.columns)
     if missing:
-        raise ValueError(f"Missing columns in train csv: {sorted(missing)}")
-    df["family"] = df["prompt"].map(classify_prompt)
+        raise ValueError(f"Missing required train columns: {sorted(missing)}")
+    df = df.copy()
+    df["family"] = df["prompt"].map(classify_family)
     return df
 
 
-def make_hf_dataset(df: pd.DataFrame, tokenizer, use_chat_template: bool = True):
-    from datasets import Dataset
-    texts = [
-        build_training_text(tokenizer, row.prompt, row.answer, use_chat_template=use_chat_template)
-        for row in df.itertuples(index=False)
-    ]
-    return Dataset.from_dict({"text": texts})
+def load_test_csv(path: str | Path) -> pd.DataFrame:
+    path = Path(path)
+    df = pd.read_csv(path)
+    required = {"id", "prompt"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing required test columns: {sorted(missing)}")
+    df = df.copy()
+    df["family"] = df["prompt"].map(classify_family)
+    return df
