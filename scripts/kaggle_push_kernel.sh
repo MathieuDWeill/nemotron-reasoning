@@ -39,6 +39,11 @@ cd nemotron-reasoning
 
 bash scripts/kaggle_setup.sh
 
+echo "== model input tree =="
+find /kaggle/input/models -maxdepth 8 -type f | sort | sed -n '1,300p'
+echo "== config candidates =="
+find /kaggle/input/models -type f -name config.json -print
+
 python scripts/kaggle_train.py --config configs/sft_default.yaml
 
 python scripts/package_adapter.py \
