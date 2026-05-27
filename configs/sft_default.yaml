@@ -1,0 +1,28 @@
+model_source: kagglehub
+model_handle: metric/nemotron-3-nano-30b-a3b-bf16/transformers/default
+train_csv: /kaggle/input/nvidia-nemotron-3-reasoning-challenge/train.csv
+output_dir: /kaggle/working/outputs/adapters/nemotron_lora
+submission_zip: /kaggle/working/outputs/submissions/submission.zip
+
+seed: 42
+subsample_size: null   # null = all rows
+max_seq_len: 2048
+num_train_epochs: 1
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 0.00005
+warmup_ratio: 0.1
+lr_scheduler_type: cosine
+logging_steps: 5
+save_strategy: 'no'
+
+lora:
+  r: 32
+  alpha: 32
+  dropout: 0.05
+  target_modules: all-linear
+  bias: none
+
+formatting:
+  use_chat_template: true
+  add_reasoning_stub: false

@@ -1,0 +1,11 @@
+torch
+transformers
+peft
+trl
+datasets
+accelerate
+polars
+pandas
+pyyaml
+kagglehub
+safetensors
