@@ -75,7 +75,7 @@ def load_test_csv(path: str | Path) -> pd.DataFrame:
     return df
 
 
-def make_hf_dataset(df, prompt_builder=None):
+def make_hf_dataset(df, prompt_builder=None, **kwargs):
     """Build a Hugging Face Dataset for SFT.
 
     Keeps the datasets import lazy so local CLI/help checks do not require
