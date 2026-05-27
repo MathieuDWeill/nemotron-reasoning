@@ -24,3 +24,7 @@ data/processed/*.csv
 # Kaggle generated kernel files
 .kaggle_kernel/
 kaggle_outputs/
+
+# Kaggle probe kernel files
+.kaggle_probe_kernel/
+kaggle_probe_outputs/
