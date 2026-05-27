@@ -14,8 +14,18 @@ def load_yaml(path: str | Path) -> dict:
 
 
 def seed_everything(seed: int) -> None:
+    import random
+
+    import numpy as np
+
     random.seed(seed)
     np.random.seed(seed)
+
+    try:
+        import torch
+    except ModuleNotFoundError:
+        return
+
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
