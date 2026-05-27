@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.env
+.venv/
+wandb/
+.cache/
+outputs/adapters/*
+outputs/submissions/*
+*.zip
+*.safetensors
+*.bin
+# Keep small Kaggle CSVs only when intentionally committed
+# data/raw/*.csv
+data/processed/
