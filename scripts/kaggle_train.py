@@ -44,6 +44,17 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--config', default='configs/sft_default.yaml')
     args = ap.parse_args()
+
+    deps = _import_training_deps()
+    torch = deps["torch"]
+    Dataset = deps["Dataset"]
+    LoraConfig = deps["LoraConfig"]
+    TaskType = deps["TaskType"]
+    get_peft_model = deps["get_peft_model"]
+    AutoModelForCausalLM = deps["AutoModelForCausalLM"]
+    AutoTokenizer = deps["AutoTokenizer"]
+    SFTConfig = deps["SFTConfig"]
+    SFTTrainer = deps["SFTTrainer"]
     cfg = load_yaml(args.config)
     seed_everything(int(cfg.get('seed', 42)))
     patch_nemotron_triton()
