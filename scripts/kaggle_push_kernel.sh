@@ -28,6 +28,27 @@ python - <<'PY'
 import json
 from pathlib import Path
 
+bash = r'''%%bash
+set -euo pipefail
+
+cd /kaggle/working
+rm -rf nemotron-reasoning
+
+git clone https://github.com/MathieuDWeill/nemotron-reasoning.git
+cd nemotron-reasoning
+
+bash scripts/kaggle_setup.sh
+
+python scripts/kaggle_train.py --config configs/sft_default.yaml
+
+python scripts/package_adapter.py \
+  --adapter-dir /kaggle/working/outputs/adapter \
+  --out /kaggle/working/submission.zip
+
+ls -lah /kaggle/working
+unzip -l /kaggle/working/submission.zip | head -50
+'''
+
 nb = {
   "cells": [
     {
@@ -35,13 +56,7 @@ nb = {
       "execution_count": None,
       "metadata": {},
       "outputs": [],
-      "source": [
-        "!git clone https://github.com/MathieuDWeill/nemotron-reasoning.git\\n",
-        "%cd nemotron-reasoning\\n",
-        "!bash scripts/kaggle_setup.sh\\n",
-        "!python scripts/kaggle_train.py --config configs/sft_default.yaml\\n",
-        "!python scripts/package_adapter.py --adapter-dir /kaggle/working/outputs/adapter --out /kaggle/working/submission.zip\\n"
-      ]
+      "source": bash.splitlines(True)
     }
   ],
   "metadata": {
