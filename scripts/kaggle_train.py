@@ -10,8 +10,27 @@ from nemotron_reasoning.utils import ensure_dir, load_yaml, patch_nemotron_trito
 
 
 def resolve_model_path(cfg):
+    from pathlib import Path
+
     if cfg.get("model_path"):
-        return cfg["model_path"]
+        path = Path(cfg["model_path"])
+
+        if path.is_file():
+            return str(path)
+
+        if (path / "config.json").exists():
+            return str(path)
+
+        matches = sorted(path.rglob("config.json")) if path.exists() else []
+        if matches:
+            resolved = matches[0].parent
+            print(f"Resolved model_path to {resolved}")
+            return str(resolved)
+
+        raise FileNotFoundError(
+            f"Could not find config.json under model_path={path}. "
+            "Check the attached Kaggle model input path."
+        )
 
     if cfg.get("model_handle"):
         import kagglehub
