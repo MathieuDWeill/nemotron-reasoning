@@ -17,3 +17,6 @@ data/processed/
 # Kaggle competition data
 data/raw/*.csv
 data/processed/*.csv
+
+# Python packaging metadata
+*.egg-info/
