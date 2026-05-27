@@ -9,11 +9,15 @@ from nemotron_reasoning.data import load_train_csv, make_hf_dataset
 from nemotron_reasoning.utils import ensure_dir, load_yaml, patch_nemotron_triton, seed_everything
 
 
-def resolve_model_path(cfg: dict) -> str:
-    if cfg.get('model_source') == 'kagglehub':
+def resolve_model_path(cfg):
+    if cfg.get("model_path"):
+        return cfg["model_path"]
+
+    if cfg.get("model_handle"):
         import kagglehub
-        return kagglehub.model_download(cfg['model_handle'])
-    return cfg['model_path']
+        return kagglehub.model_download(cfg["model_handle"])
+
+    raise ValueError("Config must define either model_path or model_handle.")
 
 
 def _import_training_deps():
