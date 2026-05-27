@@ -13,3 +13,7 @@ outputs/submissions/*
 # Keep small Kaggle CSVs only when intentionally committed
 # data/raw/*.csv
 data/processed/
+
+# Kaggle competition data
+data/raw/*.csv
+data/processed/*.csv
