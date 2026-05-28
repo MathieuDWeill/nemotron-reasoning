@@ -47,11 +47,26 @@ find /kaggle/input -maxdepth 10 -type f | sort | sed -n '1,400p'
 echo "== config candidates =="
 find /kaggle/input -type f -name config.json -print
 
-export PYTHONPATH="/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages:${PYTHONPATH:-}"
+echo "== NVIDIA utility tree =="
+find /kaggle/usr/lib -maxdepth 6 -type d \( -name "cutlass" -o -name "mamba_ssm" -o -name "python_packages" -o -name "nvidia_cutlass_dsl" \) | sort | sed -n '1,200p'
+
+export PYTHONPATH="/kaggle/usr/lib/nvidia-utility-script:/kaggle/usr/lib/nvidia-utility-script/nvidia_cutlass_dsl/python_packages:/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages:${PYTHONPATH:-}"
 
 python - <<'PY2'
 import site
-site.addsitedir("/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages/")
+for p in [
+    "/kaggle/usr/lib/nvidia-utility-script",
+    "/kaggle/usr/lib/nvidia-utility-script/nvidia_cutlass_dsl/python_packages",
+    "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages",
+]:
+    site.addsitedir(p)
+
+import sys
+print("\n".join([x for x in sys.path if "nvidia" in x or "cutlass" in x]))
+
+import cutlass
+print("cutlass OK", getattr(cutlass, "__file__", cutlass))
+
 import mamba_ssm
 print("mamba_ssm OK", mamba_ssm.__file__)
 PY2
