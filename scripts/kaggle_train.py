@@ -56,6 +56,30 @@ def _import_training_deps():
         except ModuleNotFoundError:
             pass
 
+    import os
+    import sys
+    from pathlib import Path
+
+    shim_dir = Path("/kaggle/working/shims")
+    shim_dir.mkdir(parents=True, exist_ok=True)
+    (shim_dir / "cutlass.py").write_text("from cutlass_cppgen import *\n")
+    if str(shim_dir) not in sys.path:
+        sys.path.insert(0, str(shim_dir))
+
+    for utility_path in [
+        "/kaggle/usr/lib/nvidia-utility-script",
+        "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script",
+    ]:
+        if Path(utility_path).exists() and utility_path not in sys.path:
+            sys.path.append(utility_path)
+
+    os.environ["PYTHONPATH"] = (
+        f"{shim_dir}:"
+        "/kaggle/usr/lib/nvidia-utility-script:"
+        "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script:"
+        + os.environ.get("PYTHONPATH", "")
+    )
+
     import torch
     from datasets import Dataset
     from peft import LoraConfig, TaskType, get_peft_model

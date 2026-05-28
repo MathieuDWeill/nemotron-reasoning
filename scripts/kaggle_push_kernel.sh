@@ -48,32 +48,24 @@ echo "== config candidates =="
 find /kaggle/input -type f -name config.json -print
 
 echo "== NVIDIA utility imports =="
+mkdir -p /kaggle/working/shims
+cat > /kaggle/working/shims/cutlass.py <<'PYSHIM'
+from cutlass_cppgen import *
+PYSHIM
+
+export PYTHONPATH="/kaggle/working/shims:/kaggle/usr/lib/nvidia-utility-script:/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script:${PYTHONPATH:-}"
+
 python - <<'PY2'
-import site
 import sys
+print("PYTHONPATH head:")
+print("\n".join(sys.path[:10]))
 
-# NVIDIA utility script is mounted as a Kaggle input/kernel source.
-for p in [
-    "/kaggle/usr/lib/nvidia-utility-script",
-    "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script",
-]:
-    site.addsitedir(p)
-
-# Some versions expose cutlass as cutlass_cppgen while mamba_ssm imports cutlass.
-try:
-    import cutlass
-except ModuleNotFoundError:
-    import cutlass_cppgen as cutlass
-    sys.modules["cutlass"] = cutlass
-    print("shimmed cutlass -> cutlass_cppgen", cutlass.__file__)
-else:
-    print("cutlass OK", getattr(cutlass, "__file__", cutlass))
+import cutlass
+print("cutlass shim OK", getattr(cutlass, "__file__", cutlass))
 
 import mamba_ssm
 print("mamba_ssm OK", mamba_ssm.__file__)
 PY2
-
-export PYTHONPATH="/kaggle/usr/lib/nvidia-utility-script:/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script:${PYTHONPATH:-}"
 
 python scripts/kaggle_train.py --config configs/sft_default.yaml
 
