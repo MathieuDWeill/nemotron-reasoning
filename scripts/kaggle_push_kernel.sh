@@ -49,25 +49,30 @@ find /kaggle/input -type f -name config.json -print
 
 echo "== NVIDIA utility imports =="
 mkdir -p /kaggle/working/shims
-if [ -d /kaggle/usr/lib/nvidia-utility-script/cutlass_cppgen ]; then
-  cp -r /kaggle/usr/lib/nvidia-utility-script/cutlass_cppgen /kaggle/working/shims/cutlass
-elif [ -d /kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/cutlass_cppgen ]; then
-  cp -r /kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/cutlass_cppgen /kaggle/working/shims/cutlass
-else
-  echo "ERROR: cutlass_cppgen not found"
-  find /kaggle/usr/lib -maxdepth 4 -type d -name 'cutlass_cppgen' -print
-  exit 1
-fi
+cat > /kaggle/working/shims/sitecustomize.py <<'PYSHIM'
+import sys
+try:
+    import cutlass
+except ModuleNotFoundError:
+    try:
+        import cutlass_cppgen
+        sys.modules["cutlass"] = cutlass_cppgen
+    except ModuleNotFoundError:
+        pass
+PYSHIM
 
 export PYTHONPATH="/kaggle/working/shims:/kaggle/usr/lib/nvidia-utility-script:/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script:${PYTHONPATH:-}"
 
 python - <<'PY2'
 import sys
 print("PYTHONPATH head:")
-print("\n".join(sys.path[:10]))
+print("\n".join(sys.path[:12]))
+
+import cutlass_cppgen
+print("cutlass_cppgen OK", cutlass_cppgen.__file__)
 
 import cutlass
-print("cutlass shim OK", getattr(cutlass, "__file__", cutlass))
+print("cutlass alias OK", getattr(cutlass, "__file__", cutlass))
 
 import mamba_ssm
 print("mamba_ssm OK", mamba_ssm.__file__)

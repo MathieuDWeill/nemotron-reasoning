@@ -62,17 +62,17 @@ def _import_training_deps():
 
     shim_dir = Path("/kaggle/working/shims")
     shim_dir.mkdir(parents=True, exist_ok=True)
-
-    cutlass_pkg = shim_dir / "cutlass"
-    if not cutlass_pkg.exists():
-        for candidate in [
-            Path("/kaggle/usr/lib/nvidia-utility-script/cutlass_cppgen"),
-            Path("/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/cutlass_cppgen"),
-        ]:
-            if candidate.exists():
-                import shutil
-                shutil.copytree(candidate, cutlass_pkg)
-                break
+    (shim_dir / "sitecustomize.py").write_text(
+        'import sys\n'
+        'try:\n'
+        '    import cutlass\n'
+        'except ModuleNotFoundError:\n'
+        '    try:\n'
+        '        import cutlass_cppgen\n'
+        '        sys.modules["cutlass"] = cutlass_cppgen\n'
+        '    except ModuleNotFoundError:\n'
+        '        pass\n'
+    )
 
     if str(shim_dir) not in sys.path:
         sys.path.insert(0, str(shim_dir))
@@ -82,7 +82,7 @@ def _import_training_deps():
         "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script",
     ]:
         if Path(utility_path).exists() and utility_path not in sys.path:
-            sys.path.append(utility_path)
+            sys.path.insert(1, utility_path)
 
     os.environ["PYTHONPATH"] = (
         f"{shim_dir}:"
