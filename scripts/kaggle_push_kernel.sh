@@ -17,7 +17,7 @@ cat > "${KERNEL_DIR}/kernel-metadata.json" <<EOF
   "kernel_type": "notebook",
   "is_private": true,
   "enable_gpu": true,
-  "enable_internet": false,
+  "enable_internet": true,
   "dataset_sources": [],
   "competition_sources": ["${COMP}"],
   "kernel_sources": ["ryanholbrook/nvidia-utility-script"],
