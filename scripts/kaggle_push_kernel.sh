@@ -17,10 +17,12 @@ cat > "${KERNEL_DIR}/kernel-metadata.json" <<EOF
   "kernel_type": "notebook",
   "is_private": true,
   "enable_gpu": true,
-  "enable_internet": true,
+  "enable_internet": false,
+  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9fa0da194fad2241d3f01a80581cbecbd3a258b4d1b695e2cbbbc62a0fd205ac",
+  "machine_shape": "NvidiaRtxPro6000",
   "dataset_sources": [],
   "competition_sources": ["${COMP}"],
-  "kernel_sources": [],
+  "kernel_sources": ["ryanholbrook/nvidia-utility-script"],
   "model_sources": [
     "metric/nemotron-3-nano-30b-a3b-bf16/Transformers/default/1"
   ]
@@ -46,6 +48,15 @@ echo "== model input tree =="
 find /kaggle/input -maxdepth 10 -type f | sort | sed -n '1,400p'
 echo "== config candidates =="
 find /kaggle/input -type f -name config.json -print
+
+export PYTHONPATH="/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages:${PYTHONPATH:-}"
+
+python - <<'PY2'
+import site
+site.addsitedir("/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages/")
+import mamba_ssm
+print("mamba_ssm OK", mamba_ssm.__file__)
+PY2
 
 python scripts/kaggle_train.py --config configs/sft_default.yaml
 
