@@ -62,7 +62,18 @@ def _import_training_deps():
 
     shim_dir = Path("/kaggle/working/shims")
     shim_dir.mkdir(parents=True, exist_ok=True)
-    (shim_dir / "cutlass.py").write_text("from cutlass_cppgen import *\n")
+
+    cutlass_pkg = shim_dir / "cutlass"
+    if not cutlass_pkg.exists():
+        for candidate in [
+            Path("/kaggle/usr/lib/nvidia-utility-script/cutlass_cppgen"),
+            Path("/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/cutlass_cppgen"),
+        ]:
+            if candidate.exists():
+                import shutil
+                shutil.copytree(candidate, cutlass_pkg)
+                break
+
     if str(shim_dir) not in sys.path:
         sys.path.insert(0, str(shim_dir))
 

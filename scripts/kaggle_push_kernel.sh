@@ -49,9 +49,15 @@ find /kaggle/input -type f -name config.json -print
 
 echo "== NVIDIA utility imports =="
 mkdir -p /kaggle/working/shims
-cat > /kaggle/working/shims/cutlass.py <<'PYSHIM'
-from cutlass_cppgen import *
-PYSHIM
+if [ -d /kaggle/usr/lib/nvidia-utility-script/cutlass_cppgen ]; then
+  cp -r /kaggle/usr/lib/nvidia-utility-script/cutlass_cppgen /kaggle/working/shims/cutlass
+elif [ -d /kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/cutlass_cppgen ]; then
+  cp -r /kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/cutlass_cppgen /kaggle/working/shims/cutlass
+else
+  echo "ERROR: cutlass_cppgen not found"
+  find /kaggle/usr/lib -maxdepth 4 -type d -name 'cutlass_cppgen' -print
+  exit 1
+fi
 
 export PYTHONPATH="/kaggle/working/shims:/kaggle/usr/lib/nvidia-utility-script:/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script:${PYTHONPATH:-}"
 
