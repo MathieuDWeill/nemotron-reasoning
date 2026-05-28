@@ -47,29 +47,33 @@ find /kaggle/input -maxdepth 10 -type f | sort | sed -n '1,400p'
 echo "== config candidates =="
 find /kaggle/input -type f -name config.json -print
 
-echo "== NVIDIA utility tree =="
-find /kaggle/usr/lib -maxdepth 10 -type d \( -name "cutlass" -o -name "mamba_ssm" -o -name "python_packages" -o -name "nvidia_cutlass_dsl" \) | sort | sed -n '1,300p'
-
-export PYTHONPATH="/kaggle/usr/lib/nvidia-utility-script/nvidia_cutlass_dsl/python_packages:/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages:/kaggle/usr/lib/nvidia-utility-script:${PYTHONPATH:-}"
-
+echo "== NVIDIA utility imports =="
 python - <<'PY2'
 import site
+import sys
+
+# NVIDIA utility script is mounted as a Kaggle input/kernel source.
 for p in [
-    "/kaggle/usr/lib/nvidia-utility-script/nvidia_cutlass_dsl/python_packages",
-    "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script/nvidia_cutlass_dsl/python_packages",
     "/kaggle/usr/lib/nvidia-utility-script",
+    "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script",
 ]:
     site.addsitedir(p)
 
-import sys
-print("\n".join([x for x in sys.path if "nvidia" in x or "cutlass" in x]))
-
-import cutlass
-print("cutlass OK", getattr(cutlass, "__file__", cutlass))
+# Some versions expose cutlass as cutlass_cppgen while mamba_ssm imports cutlass.
+try:
+    import cutlass
+except ModuleNotFoundError:
+    import cutlass_cppgen as cutlass
+    sys.modules["cutlass"] = cutlass
+    print("shimmed cutlass -> cutlass_cppgen", cutlass.__file__)
+else:
+    print("cutlass OK", getattr(cutlass, "__file__", cutlass))
 
 import mamba_ssm
 print("mamba_ssm OK", mamba_ssm.__file__)
 PY2
+
+export PYTHONPATH="/kaggle/usr/lib/nvidia-utility-script:/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script:${PYTHONPATH:-}"
 
 python scripts/kaggle_train.py --config configs/sft_default.yaml
 
