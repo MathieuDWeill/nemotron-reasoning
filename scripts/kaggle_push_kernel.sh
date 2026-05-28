@@ -18,8 +18,6 @@ cat > "${KERNEL_DIR}/kernel-metadata.json" <<EOF
   "is_private": true,
   "enable_gpu": true,
   "enable_internet": false,
-  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:9fa0da194fad2241d3f01a80581cbecbd3a258b4d1b695e2cbbbc62a0fd205ac",
-  "machine_shape": "NvidiaRtxPro6000",
   "dataset_sources": [],
   "competition_sources": ["${COMP}"],
   "kernel_sources": ["ryanholbrook/nvidia-utility-script"],
