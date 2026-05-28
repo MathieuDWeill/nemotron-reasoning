@@ -19,7 +19,15 @@ WORK_DATA="/kaggle/working/data/processed"
 
 echo
 echo "== install dependencies =="
-pip install -r requirements.txt
+pip install -r requirements-kaggle.txt
+
+echo
+echo "== check training imports =="
+python - <<'PY2'
+import peft, trl, datasets, accelerate
+import mamba_ssm
+print("training imports OK")
+PY2
 
 echo
 echo "== install repo =="
