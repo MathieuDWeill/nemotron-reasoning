@@ -3,5 +3,3 @@ trl
 datasets
 accelerate
 safetensors
-causal-conv1d
-mamba-ssm
