@@ -40,6 +40,22 @@ def resolve_model_path(cfg):
 
 
 def _import_training_deps():
+    import site
+    import sys
+    for utility_path in [
+        "/kaggle/usr/lib/nvidia-utility-script",
+        "/kaggle/usr/lib/notebooks/ryanholbrook/nvidia-utility-script",
+    ]:
+        site.addsitedir(utility_path)
+    try:
+        import cutlass
+    except ModuleNotFoundError:
+        try:
+            import cutlass_cppgen as cutlass
+            sys.modules["cutlass"] = cutlass
+        except ModuleNotFoundError:
+            pass
+
     import torch
     from datasets import Dataset
     from peft import LoraConfig, TaskType, get_peft_model
